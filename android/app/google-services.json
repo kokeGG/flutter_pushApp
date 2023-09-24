@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "505947676644",
+    "project_id": "push-app-flutter-97a68",
+    "storage_bucket": "push-app-flutter-97a68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505947676644:android:9d8e0d156be2453a94b1f1",
+        "android_client_info": {
+          "package_name": "com.kokehr99.push_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClHfInm8Gh1L-QhFSSal86h6go3tJftqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
