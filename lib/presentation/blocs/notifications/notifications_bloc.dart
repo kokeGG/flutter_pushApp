@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:push_app/config/local_notifications/local_notifications.dart';
 import 'package:push_app/domain/entities/push_message.dart';
 import 'package:push_app/firebase_options.dart';
 import 'package:equatable/equatable.dart';
@@ -20,8 +20,15 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  
-  NotificationsBloc() : super( const NotificationsState() ) {
+  int pushNumberId = 0;
+
+  final Future<void> Function()? requestLocalNotificationPermissions;
+  final void Function({ required int id, String? title, String? body, String? data })? showLocalNotification;
+
+  NotificationsBloc({
+    this.requestLocalNotificationPermissions,
+    this.showLocalNotification
+  }) : super( const NotificationsState() ) {
     on<NotificationStatusChanged>( _notificationStatusChanged );
     on<NotificationReceived>( _onPushMessageReceived );
 
@@ -60,15 +67,6 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   void _initialStatusCheck() async {
     final settings = await messaging.getNotificationSettings();
     add(NotificationStatusChanged( settings.authorizationStatus ));
-    /*
-    este usuario tiene varios dispositivos, por ende varios tokens
-      email@gmail.com: [
-        token 1
-        token 2
-        token 3
-        token 4
-      ]
-     */
   }
 
   void _getFCMToken() async {
@@ -95,8 +93,16 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         : message.notification!.apple?.imageUrl
     );
 
+    if (showLocalNotification != null) {
+      showLocalNotification!(
+        id: ++pushNumberId,
+        body: notification.body,
+        data: notification.messageId,
+        title: notification.title
+      );
+      
+    }
     add(NotificationReceived(notification));
-    
   }
 
   void _onForegroundMessage() {
@@ -114,6 +120,11 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       provisional: false,
       sound: true,
     );
+
+    //Solicitar permiso a las local notifications
+    if ( requestLocalNotificationPermissions != null ) {
+      await requestLocalNotificationPermissions!();
+    }
 
     add(NotificationStatusChanged( settings.authorizationStatus ));
   }
